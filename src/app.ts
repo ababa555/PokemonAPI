@@ -36,6 +36,7 @@ app.post('/post2/:hogehoge', (req: AbabaRequest, res, next) => {
 
 app.use('/', require('./routes/ababa'));
 app.use('/test', require('./routes/test'))
+app.use('/pokemons', require('./routes/pokemons'))
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   next()
