@@ -1,0 +1,1 @@
+export { PokemonNamesResponse } from './PokemonNamesResponse'

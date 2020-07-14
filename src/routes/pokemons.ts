@@ -1,7 +1,7 @@
 import { Router, Request } from 'express';
 
-import { PokemonNames } from '../models/pokemonNames';
-import { CsvHelper } from '../helpers/csvHelper';
+import { PokemonNamesResponse } from '../models';
+import { CsvHelper } from '../helpers/CsvHelper';
 
 interface GetNamesRequest extends Request {
   query: {
@@ -17,13 +17,13 @@ router.get('/getNames', async (req: GetNamesRequest, res, next) => {
   let pokemonNames = CsvHelper.read('./src/csv/sm/pokemonNames.csv')
   let pokemons = CsvHelper.read('./src/csv/sm/pokemons.csv')
 
-  const items: PokemonNames[] = []
+  const items: PokemonNamesResponse[] = []
   pokemons.forEach((pokemon: any) => {
     const target = pokemonNames.find((name: any) => {
       return name.pokemon_id === pokemon.id 
       && req.query.local_language_id ? name.local_language_id === req.query.local_language_id : null
     })
-    const item = new PokemonNames(target.id, target.name)
+    const item = new PokemonNamesResponse(target.id, target.name)
     items.push(item)
   });
 
