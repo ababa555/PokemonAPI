@@ -1,5 +1,6 @@
 export const CsvType = {
   POKEMONS: 'pokemons',
+  POKEMON_ABILITIES: 'pokemonAbilities',
   POKEMON_EVOLUTION_CHAINS: 'pokemonEvolutionChains',
   POKEMON_MOVES: 'pokemonMoves',
   POKEMON_NAMES: 'pokemonNames',

@@ -1,3 +1,8 @@
 export { IPokemonNameService } from './IPokemonNameService'
 export { PokemonNameService } from './PokemonNameService'
-
+export { IPokemonService } from './IPokemonService'
+export { PokemonService } from './PokemonService'
+export { ICalculaionService } from './ICalculaionService'
+export { CalculaionService } from './CalculaionService'
+export { IStatsService } from './IStatsService'
+export { StatsService } from './StatsService'

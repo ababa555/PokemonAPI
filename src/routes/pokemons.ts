@@ -1,33 +1,29 @@
 import { Router, Request } from 'express';
 
-import { PokemonNamesResponse } from '../models';
-import { CsvHelper } from '../helpers/CsvHelper';
-
-interface GetNamesRequest extends Request {
-  query: {
-    version: string,
-    local_language_id: string,
-    includeAnotherForm: string
-  }
-}
+import container from '../startup/container';
+import { TYPES } from '../services/types';
+import { PokemonController } from '../controllers/PokemonController';
+import { GetPokemonRequest, GetPokemonByNoRequest, GetStatsRequest } from '../models/request';
 
 const router = Router()
 
-router.get('/getNames', async (req: GetNamesRequest, res, next) => {
-  let pokemonNames = CsvHelper.read('./src/csv/sm/pokemonNames.csv')
-  let pokemons = CsvHelper.read('./src/csv/sm/pokemons.csv')
+const pokemonControllerContainer = container.get<PokemonController>(
+  TYPES.PokemonController
+);
 
-  const items: PokemonNamesResponse[] = []
-  pokemons.forEach((pokemon: any) => {
-    const target = pokemonNames.find((name: any) => {
-      return name.pokemon_id === pokemon.id 
-      && req.query.local_language_id ? name.local_language_id === req.query.local_language_id : null
-    })
-    const item = new PokemonNamesResponse(target.id, target.name)
-    items.push(item)
-  });
+// http://localhost:3000/pokemons?id=n1&version=1&localLanguageId=1
+router.get('/', async (req: GetPokemonRequest, res, next) => {
+  pokemonControllerContainer.get(req, res);
+})
 
-  res.json(items)
+// http://localhost:3000/pokemons/v2?no=003&version=1&localLanguageId=1
+router.get('/v2', async (req: GetPokemonByNoRequest, res, next) => {
+  pokemonControllerContainer.getByNo(req, res);
+})
+
+// http://localhost:3000/pokemons/stats?pokemonId=n1&version=1&hpIndividual=31&attackIndividual=31&defenseIndividual=31&spAttackIndividual=31&spDefenseIndividual=31&speedIndividual=31&hpEffort=252&attackEffort=252&defenseEffort=252&spAttackEffort=252&spDefenseEffort=252&speedEffort=252&attackNature=1.1&defenseNature=1.1&spAttackNature=1.1&spDefenseNature=1.1&speedNature=1.1
+router.get('/stats', async (req: GetStatsRequest, res, next) => {
+  pokemonControllerContainer.getStats(req, res);
 })
 
 module.exports = router;
