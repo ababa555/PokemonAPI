@@ -1,5 +1,6 @@
 import { PokemonNameResponse } from '../models';
+import { GameVersion } from './../types';
 
 export interface ICalculaionService {
-  stats(version: string, localLanguageId: string, includeAnotherForm: string): PokemonNameResponse[];
+  stats(version: GameVersion, localLanguageId: string, includeAnotherForm: string): PokemonNameResponse[];
 }

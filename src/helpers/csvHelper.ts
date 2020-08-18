@@ -1,5 +1,7 @@
 import fs from 'fs'
 import csvSync from 'csv-parse/lib/sync'
+import { GameVersionType } from './../enumerators';
+import { GameVersion } from './../types';
 
 export class CsvHelper {
   static read(filePath: string) {
@@ -10,16 +12,16 @@ export class CsvHelper {
     return csvSync(data, options)
   }
 
-  static filename(filename: string, localLanguageId: string) {
+  static filename(filename: string, gameVersion: GameVersion) {
     let version = ""
-    switch (localLanguageId) {
-      case "1":
+    switch (gameVersion) {
+      case GameVersionType.SM:
         version = "sm"
         break;
-      case "2":
+      case GameVersionType.PIKA_VEE:
         version = "pika_vee"
         break;
-      case "3":
+      case GameVersionType.SWSH:
         version = "swsh"
         break;
       default:

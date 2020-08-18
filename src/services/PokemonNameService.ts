@@ -5,10 +5,11 @@ import { IPokemonNameService } from './IPokemonNameService';
 import { PokemonNameResponse } from '../models';
 import { CsvType } from '../enumerators';
 import { CsvHelper, StringHelper } from '../helpers';
+import { GameVersion } from './../types';
 
 @injectable()
 export class PokemonNameService implements IPokemonNameService {
-  public findAll(version: string, localLanguageId: string, includeAnotherForm: string): PokemonNameResponse[] {
+  public findAll(version: GameVersion, localLanguageId: string, includeAnotherForm: string): PokemonNameResponse[] {
     const pokemonNames = CsvHelper.read(CsvHelper.filename(CsvType.POKEMON_NAMES, version))
     const pokemons = CsvHelper.read(CsvHelper.filename(CsvType.POKEMONS, version))
 

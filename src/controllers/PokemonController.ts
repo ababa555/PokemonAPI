@@ -6,6 +6,7 @@ import { TYPES } from '../services/types';
 import { IPokemonService, IPokemonNameService, IStatsService } from '../services';
 import { FindAllNamesRequest, GetPokemonRequest, GetPokemonByNoRequest, GetStatsRequest } from '../models/request';
 import { PokemonResponse, PokemonNameResponse, PokemonStatsResponse } from '../models/response';
+import { StringHelper } from './../helpers';
 
 @injectable()
 export class PokemonController {
@@ -23,24 +24,28 @@ export class PokemonController {
   }
 
   public findAll(req: FindAllNamesRequest, res: Response) {
+    const version = StringHelper.ToGameVersion(req.query.version)
     const result: PokemonNameResponse[] = this.pokemonNameService.findAll(
-      req.query.version, req.query.localLanguageId, req.query.includeAnotherForm);
+      version, req.query.localLanguageId, req.query.includeAnotherForm);
     res.status(200).json(result);
   }
 
   public get(req: GetPokemonRequest, res: Response) {
+    const version = StringHelper.ToGameVersion(req.query.version)
     const result: PokemonResponse = this.service.get(
-      req.query.id, req.query.version, req.query.localLanguageId);
+      req.query.id, version, req.query.localLanguageId);
     res.status(200).json(result);
   }
 
   public getByNo(req: GetPokemonByNoRequest, res: Response) {
+    const version = StringHelper.ToGameVersion(req.query.version)
     const result: PokemonResponse[] = this.service.getByNo(
-      req.query.no, req.query.version, req.query.localLanguageId);
+      req.query.no, version, req.query.localLanguageId);
     res.status(200).json(result);
   }
 
   public getStats(req: GetStatsRequest, res: Response) {
+    const version = StringHelper.ToGameVersion(req.query.version)
     const hpIndividual = parseInt(req.query.hpIndividual);
     const attackIndividual = parseInt(req.query.attackIndividual);
     const defenseIndividual = parseInt(req.query.defenseIndividual);
@@ -61,7 +66,7 @@ export class PokemonController {
 
     const result: PokemonStatsResponse = this.statsService.calc(
       req.query.pokemonId,
-      req.query.version,
+      version,
       hpIndividual,
       attackIndividual,
       defenseIndividual,

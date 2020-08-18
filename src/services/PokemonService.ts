@@ -1,19 +1,17 @@
-import { PokemonTypeResponse } from './../models/response/PokemonTypeResponse';
-import { PokemonStatsResponse } from './../models/response/PokemonStatsResponse';
-import { PokemonMoveResponse } from './../models/response/PokemonMoveResponse';
-import { PokemonEvolutionChainResponse } from './../models/response/PokemonEvolutionChainResponse';
-import { PokemonAbilityResponse } from './../models/response/PokemonAbilityResponse';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
 import { IPokemonService } from './';
 import { PokemonResponse } from '../models';
 import { CsvType } from '../enumerators';
-import { CsvHelper, StringHelper } from '../helpers';
+import { CsvHelper } from '../helpers';
+import { GameVersion } from './../types';
+import { GameVersionType } from './../enumerators';
+import { PokemonTypeResponse, PokemonStatsResponse, PokemonMoveResponse, PokemonEvolutionChainResponse, PokemonAbilityResponse } from './../models/response';
 
 @injectable()
 export class PokemonService implements IPokemonService {
-  public get(id: string, version: string, localLanguageId: string): PokemonResponse {
+  public get(id: string, version: GameVersion, localLanguageId: string): PokemonResponse {
     const pokemons = CsvHelper.read(CsvHelper.filename(CsvType.POKEMONS, version))
 
     const targetPokemon = pokemons.find((x: any) => {
@@ -24,7 +22,7 @@ export class PokemonService implements IPokemonService {
     return result
   }
 
-  public getByNo(no: string, version: string, localLanguageId: string): PokemonResponse[] {
+  public getByNo(no: string, version: GameVersion, localLanguageId: string): PokemonResponse[] {
     const pokemons = CsvHelper.read(CsvHelper.filename(CsvType.POKEMONS, version))
 
     const targetPokemons = pokemons.filter((x: any) => {
@@ -41,12 +39,12 @@ export class PokemonService implements IPokemonService {
     return result
   }
 
-  private getPokemon(pokemon: any, version: string, localLanguageId: string): PokemonResponse {
+  private getPokemon(pokemon: any, version: GameVersion, localLanguageId: string): PokemonResponse {
 
     // 特性
     const abilities : PokemonAbilityResponse[] = []
     // pika_veeは特性がない
-    if (version !== "pika_vee") {
+    if (version !== GameVersionType.PIKA_VEE) {
       const csvAbilities = CsvHelper.read(CsvHelper.filename(CsvType.POKEMON_ABILITIES, version))
       csvAbilities.filter((x:any) => x.pokemonId === pokemon.id).forEach((x:any) => {
         const ability = new PokemonAbilityResponse(x.pokemonId, x.abilityName, x.isHidden)
