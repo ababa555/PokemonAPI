@@ -1,4 +1,4 @@
-export class PokemonNameResponse {
+export class PokemonName {
   pokemonId: string;
   localLanguageId: string;
   name: string;

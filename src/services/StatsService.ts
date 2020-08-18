@@ -1,16 +1,17 @@
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
-import { CsvType } from './../enumerators/CsvType';
-import { CsvHelper } from './../helpers/CsvHelper';
 import { IStatsService } from './IStatsService';
 import { PokemonCalcStatsResponse } from '../models';
+import { CsvType } from './../enumerators';
+import { CsvHelper } from './../helpers';
+import { GameVersion } from './../types';
 
 // 計算式参考
 // https://yakkun.com/dp/system.htm#calc
 @injectable()
 export class StatsService implements IStatsService {
-  public calc(pokemonId: string, version: string, 
+  public calc(pokemonId: string, version: GameVersion, 
   hpIndividual: number, attackIndividual: number, defenseIndividual: number, spAttackIndividual: number, spDefenseIndividual: number, speedIndividual: number,
   hpEffort: number, attackEffort: number, defenseEffort: number, spAttackEffort: number, spDefenseEffort: number, speedEffort: number,
   attackNature: number, defenseNature: number, spAttackNature: number, spDefenseNature: number, speedNature: number): PokemonCalcStatsResponse {

@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-export interface FindAllNamesRequest extends Request {
+export interface FindNamesRequest extends Request {
   query: {
     version: string,
     localLanguageId: string,

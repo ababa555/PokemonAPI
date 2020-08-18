@@ -4,7 +4,7 @@ import 'reflect-metadata';
 
 import { TYPES } from '../services/types';
 import { IPokemonService, IPokemonNameService, IStatsService } from '../services';
-import { FindAllNamesRequest, GetPokemonRequest, GetPokemonByNoRequest, GetStatsRequest } from '../models/request';
+import { FindNamesRequest, GetPokemonRequest, GetPokemonByNoRequest, GetStatsRequest } from '../models/request';
 import { PokemonResponse, PokemonNameResponse, PokemonStatsResponse } from '../models/response';
 import { StringHelper } from './../helpers';
 
@@ -23,9 +23,9 @@ export class PokemonController {
       this.statsService = statsService;
   }
 
-  public findAll(req: FindAllNamesRequest, res: Response) {
+  public findName(req: FindNamesRequest, res: Response) {
     const version = StringHelper.ToGameVersion(req.query.version)
-    const result: PokemonNameResponse[] = this.pokemonNameService.findAll(
+    const result: PokemonNameResponse[] = this.pokemonNameService.find(
       version, req.query.localLanguageId, req.query.includeAnotherForm);
     res.status(200).json(result);
   }
