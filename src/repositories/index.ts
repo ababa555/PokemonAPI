@@ -1,4 +1,16 @@
+export { IPokemonAbilityRepository } from './IPokemonAbilityRepository';
+export { PokemonAbilityRepository } from './PokemonAbilityRepository';
+export { IPokemonEvolutionChainRepository } from './IPokemonEvolutionChainRepository';
+export { PokemonEvolutionChainRepository } from './PokemonEvolutionChainRepository';
+export { IPokemonMoveRepository } from './IPokemonMoveRepository';
+export { PokemonMoveRepository } from './PokemonMoveRepository';
 export { IPokemonRepository } from './IPokemonRepository';
 export { PokemonRepository } from './PokemonRepository';
 export { IPokemonNameRepository } from './IPokemonNameRepository';
 export { PokemonNameRepository } from './PokemonNameRepository';
+export { IPokemonStatsRepository } from './IPokemonStatsRepository';
+export { PokemonStatsRepository } from './PokemonStatsRepository';
+export { IPokemonTypeRepository } from './IPokemonTypeRepository';
+export { PokemonTypeRepository } from './PokemonTypeRepository';
+export { IMoveRepository } from './IMoveRepository';
+export { MoveRepository } from './MoveRepository';

@@ -2,7 +2,16 @@ import { Container } from "inversify";
 
 import { TYPES } from "../services/types";
 import { IPokemonService, PokemonService, IPokemonNameService, PokemonNameService, IStatsService, StatsService } from "../services";
-import { IPokemonNameRepository, PokemonNameRepository, IPokemonRepository, PokemonRepository } from './../repositories';
+import { 
+  IPokemonNameRepository, PokemonNameRepository, 
+  IPokemonRepository, PokemonRepository,
+  IPokemonAbilityRepository, PokemonAbilityRepository,
+  IPokemonEvolutionChainRepository, PokemonEvolutionChainRepository,
+  IPokemonMoveRepository, PokemonMoveRepository,
+  IPokemonStatsRepository, PokemonStatsRepository,
+  IPokemonTypeRepository, PokemonTypeRepository,
+  IMoveRepository, MoveRepository
+} from './../repositories';
 
 import { PokemonController } from "../controllers/PokemonController";
 
@@ -36,6 +45,36 @@ container
 container
 .bind<IPokemonNameRepository>(TYPES.IPokemonNameRepository)
 .to(PokemonNameRepository)
+.inSingletonScope();
+
+container
+.bind<IPokemonAbilityRepository>(TYPES.IPokemonAbilityRepository)
+.to(PokemonAbilityRepository)
+.inSingletonScope();
+
+container
+.bind<IPokemonEvolutionChainRepository>(TYPES.IPokemonEvolutionChainRepository)
+.to(PokemonEvolutionChainRepository)
+.inSingletonScope();
+
+container
+.bind<IPokemonMoveRepository>(TYPES.IPokemonMoveRepository)
+.to(PokemonMoveRepository)
+.inSingletonScope();
+
+container
+.bind<IPokemonStatsRepository>(TYPES.IPokemonStatsRepository)
+.to(PokemonStatsRepository)
+.inSingletonScope();
+
+container
+.bind<IPokemonTypeRepository>(TYPES.IPokemonTypeRepository)
+.to(PokemonTypeRepository)
+.inSingletonScope();
+
+container
+.bind<IMoveRepository>(TYPES.IMoveRepository)
+.to(MoveRepository)
 .inSingletonScope();
 
 export default container;
