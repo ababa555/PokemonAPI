@@ -6,8 +6,7 @@ import { IPokemonService } from './';
 import { IPokemonAbilityRepository, IPokemonEvolutionChainRepository, IPokemonMoveRepository, IMoveRepository, IPokemonRepository, IPokemonNameRepository, IPokemonStatsRepository, IPokemonTypeRepository } from '../repositories'
 import { ArrayHelper } from '../helpers';
 import { GameVersion } from './../types';
-import { PokemonResponse, PokemonTypeResponse, PokemonStatsResponse, PokemonMoveResponse, MoveResponse, PokemonEvolutionChainResponse, PokemonAbilityResponse } from './../models/response';
-import { Pokemon, PokemonAbility, PokemonEvolutionChain, PokemonMove, Move, PokemonName, PokemonStats, PokemonType } from './../models/data';
+import { PokemonWithEverything, Pokemon, PokemonMove, Move } from './../models/data';
 
 @injectable()
 export class PokemonService implements IPokemonService {
@@ -39,17 +38,17 @@ export class PokemonService implements IPokemonService {
       this.moveRepository = moveRepository;
   }
 
-  public get(id: string, version: GameVersion, localLanguageId: string): PokemonResponse {
+  public get(id: string, version: GameVersion, localLanguageId: string): PokemonWithEverything {
     const pokemon = this.repository.get(id, version)
 
     const result = this.getPokemon(pokemon, version, localLanguageId)
     return result
   }
 
-  public getByNo(no: string, version: GameVersion, localLanguageId: string): PokemonResponse[] {
+  public getByNo(no: string, version: GameVersion, localLanguageId: string): PokemonWithEverything[] {
     const pokemons = this.repository.findByNo(no, version)
 
-    const result : PokemonResponse[] = []
+    const result : PokemonWithEverything[] = []
 
     pokemons.forEach((targetPokemon: Pokemon) => {
       const pokemon = this.getPokemon(targetPokemon, version, localLanguageId)
@@ -59,34 +58,19 @@ export class PokemonService implements IPokemonService {
     return result
   }
 
-  private getPokemon(pokemon: any, version: GameVersion, localLanguageId: string): PokemonResponse {
+  private getPokemon(pokemon: Pokemon, version: GameVersion, localLanguageId: string): PokemonWithEverything {
     // 特性
-    const abilities : PokemonAbilityResponse[] = []
-    const abilitiesData = this.pokemonAbilityRepository.find(pokemon.id, version)
-    abilitiesData.forEach((x:PokemonAbility) => {
-      const ability = new PokemonAbilityResponse(x.pokemonId, x.abilityName, x.isHidden)
-      abilities.push(ability)
-    });
-    
+    const abilities = this.pokemonAbilityRepository.find(pokemon.id, version)
 
     // 進化情報
-    const evolutionChains : PokemonEvolutionChainResponse[] = []
-    const evolutionChainsData = this.pokemonEvolutionChainRepository.find(pokemon.id, version)
-    evolutionChainsData.forEach((x:any) => {
-      const evolutionChain = new PokemonEvolutionChainResponse(x.pokemonId, x.evolutionChainId, x.order)
-      evolutionChains.push(evolutionChain)
-    });
+    const evolutionChains = this.pokemonEvolutionChainRepository.find(pokemon.id, version)
 
     // 技
-    const moves : PokemonMoveResponse[] = []
-    const movesData = this.pokemonMoveRepository.find(pokemon.id, version);
-    const moveList = this.moveRepository.find(version)
-    movesData.forEach((x:PokemonMove) => {
-      const targetMove = ArrayHelper.ensure(moveList.find(x => x.name === x.name))
-      const moveData = new MoveResponse(targetMove.id, targetMove.name, targetMove.typeId, targetMove.power, targetMove.power2,
-        targetMove.pp, targetMove.accuracy, targetMove.priority, targetMove.damageType, targetMove.isDirect, targetMove.canProtect)
-      const move = new PokemonMoveResponse(x.pokemonId, x.moveName, moveData)
-      moves.push(move)
+    const moves = this.pokemonMoveRepository.find(pokemon.id, version);
+    const allMoves = this.moveRepository.find(version)
+    moves.forEach((rememberMove: PokemonMove) => {
+      const move = ArrayHelper.ensure(allMoves.find(x => x.name === rememberMove.moveName))
+      rememberMove.move = move
     });
 
     // 名前
@@ -98,11 +82,6 @@ export class PokemonService implements IPokemonService {
     // タイプ
     const types = this.pokemonTypeRepository.find(pokemon.id, version)
 
-    const result = new PokemonResponse(
-      pokemon.id, pokemon.no, pokemon.height, pokemon.weight, pokemon.order, pokemon.isDefault,
-      pokemonName.name, pokemonName.formName,
-      abilities, evolutionChains, moves, stats, types)
-
-    return result
+    return new PokemonWithEverything(pokemon, pokemonName, abilities, evolutionChains, moves, stats, types);
   }
 }

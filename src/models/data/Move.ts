@@ -1,7 +1,9 @@
+import { Move as MoveType } from '../../types';
+
 export class Move {
   id: number;
   name: string;
-  typeId: string;
+  typeId: MoveType;
   power: string;
   power2: string;
   pp: number;
@@ -11,7 +13,7 @@ export class Move {
   isDirect: boolean;
   canProtect: boolean;
 
-  constructor(id: number, name: string, typeId: string, power: string, power2: string,
+  constructor(id: number, name: string, typeId: MoveType, power: string, power2: string,
     pp: number, accuracy: string, priority: number, damageType: string, isDirect: boolean, canProtect: boolean) {
       this.id = id;
       this.name = name; 

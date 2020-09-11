@@ -1,10 +1,10 @@
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
-import { PokemonMove } from '../models/data';
+import { PokemonMove, Move } from '../models/data';
 import { IPokemonMoveRepository } from './IPokemonMoveRepository';
 import { CsvType } from '../enumerators';
-import { CsvHelper } from '../helpers';
+import { ArrayHelper, CsvHelper } from '../helpers';
 import { GameVersion } from '../types';
 
 @injectable()
@@ -17,13 +17,17 @@ export class PokemonMoveRepository implements IPokemonMoveRepository {
   }
 
   public findImpl(version: GameVersion): PokemonMove[] {
-    const moves = CsvHelper.read(CsvHelper.filename(CsvType.POKEMON_MOVES, version))
+    const pokemonMoves = CsvHelper.read(CsvHelper.filename(CsvType.POKEMON_MOVES, version))
+    const moves = CsvHelper.read(CsvHelper.filename(CsvType.MOVES, version))
 
     const result: PokemonMove[] = []
 
-    moves.forEach((x: any) => {
-      const move = new PokemonMove(x.pokemonId, x.moveName)
-      result.push(move)
+    pokemonMoves.forEach((x: any) => {
+      const targetMove = ArrayHelper.ensure(moves.find((y: any) => x.moveName === y.name))
+      const move = new Move(targetMove.id, targetMove.name, targetMove.type, targetMove.power, targetMove.power2,
+        targetMove.pp, targetMove.accuracy, targetMove.priority, targetMove.damageType, targetMove.isDirect, targetMove.canProtect)
+      const pokemonMove = new PokemonMove(x.pokemonId, x.moveName, move)
+      result.push(pokemonMove)
     });
     return result
   }

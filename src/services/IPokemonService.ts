@@ -1,8 +1,8 @@
-import { PokemonResponse } from '../models';
+import { PokemonWithEverything } from '../models/data';
 import { GameVersion } from './../types';
 
 export interface IPokemonService {
-  get(id: string, version: GameVersion, localLanguageId: string): PokemonResponse;
+  get(id: string, version: GameVersion, localLanguageId: string): PokemonWithEverything;
 
-  getByNo(no: string, version: GameVersion, localLanguageId: string): PokemonResponse[];
+  getByNo(no: string, version: GameVersion, localLanguageId: string): PokemonWithEverything[];
 }

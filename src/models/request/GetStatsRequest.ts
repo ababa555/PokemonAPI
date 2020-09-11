@@ -20,6 +20,7 @@ export interface GetStatsRequest extends Request {
     defenseNature: string,
     spAttackNature: string,
     spDefenseNature: string,
-    speedNature: string
+    speedNature: string,
+    option: string  // swsh:ダイマックスレベル
   }
 }

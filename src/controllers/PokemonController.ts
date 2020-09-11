@@ -5,7 +5,8 @@ import 'reflect-metadata';
 import { TYPES } from '../services/types';
 import { IPokemonService, IPokemonNameService, IStatsService } from '../services';
 import { FindNamesRequest, GetPokemonRequest, GetPokemonByNoRequest, GetStatsRequest } from '../models/request';
-import { PokemonResponse, PokemonNameResponse, PokemonStatsResponse } from '../models/response';
+import { PokemonResponse, PokemonNameResponse, PokemonCalcStatsResponse } from '../models/response';
+import { PokemonWithEverything, PokemonName, PokemonStats } from '../models/data';
 import { StringHelper } from './../helpers';
 
 @injectable()
@@ -25,23 +26,43 @@ export class PokemonController {
 
   public findName(req: FindNamesRequest, res: Response) {
     const version = StringHelper.ToGameVersion(req.query.version)
-    const result: PokemonNameResponse[] = this.pokemonNameService.find(
+    const result: PokemonName[] = this.pokemonNameService.find(
       version, req.query.localLanguageId, req.query.includeAnotherForm);
-    res.status(200).json(result);
+
+    const response: PokemonNameResponse[] = []
+    result.forEach((x: PokemonName) => {
+      const pokemonName = new PokemonNameResponse(x.pokemonId, x.localLanguageId, x.name, x.formName)
+      response.push(pokemonName)
+    });
+
+    res.status(200).json(response);
   }
 
   public get(req: GetPokemonRequest, res: Response) {
     const version = StringHelper.ToGameVersion(req.query.version)
-    const result: PokemonResponse = this.service.get(
-      req.query.id, version, req.query.localLanguageId);
-    res.status(200).json(result);
+    const result: PokemonWithEverything = this.service.get(req.query.id, version, req.query.localLanguageId);
+
+    const response = new PokemonResponse(
+      result.pokemon, result.pokemonName, result.pokemonAbilities, 
+      result.pokemonEvolutionChains, result.pokemonMoves, result.pokemonStats,
+      result.pokemonTypes);
+    
+    res.status(200).json(response);
   }
 
   public getByNo(req: GetPokemonByNoRequest, res: Response) {
     const version = StringHelper.ToGameVersion(req.query.version)
-    const result: PokemonResponse[] = this.service.getByNo(
+    const result: PokemonWithEverything[] = this.service.getByNo(
       req.query.no, version, req.query.localLanguageId);
-    res.status(200).json(result);
+
+    const response = result.map(x => {
+      return new PokemonResponse(
+        x.pokemon, x.pokemonName, x.pokemonAbilities, 
+        x.pokemonEvolutionChains, x.pokemonMoves, x.pokemonStats,
+        x.pokemonTypes);
+    })
+  
+    res.status(200).json(response);
   }
 
   public getStats(req: GetStatsRequest, res: Response) {
@@ -63,8 +84,9 @@ export class PokemonController {
     const spAttackNature = parseFloat(req.query.spAttackNature);
     const spDefenseNature = parseFloat(req.query.spDefenseNature);
     const speedNature = parseFloat(req.query.speedNature);
+    const option = parseFloat(req.query.option);
 
-    const result: PokemonStatsResponse = this.statsService.calc(
+    const result: PokemonStats = this.statsService.calc(
       req.query.pokemonId,
       version,
       hpIndividual,
@@ -83,8 +105,17 @@ export class PokemonController {
       defenseNature,
       spAttackNature,
       spDefenseNature,
-      speedNature);
+      speedNature,
+      option);
 
-    res.status(200).json(result);
+    const response = new PokemonCalcStatsResponse(
+      result.pokemonId,
+      result.hp, result.attack, result.defense, result.spAttack, result.spDefense, result.speed,
+      hpIndividual, attackIndividual, defenseIndividual, spAttackIndividual, spDefenseIndividual, speedIndividual,
+      hpEffort, attackEffort, defenseEffort, spAttackEffort, spDefenseEffort, speedEffort,
+      attackNature, defenseNature, spAttackNature, spDefenseNature, speedNature
+    );
+
+    res.status(200).json(response);
   }
 }

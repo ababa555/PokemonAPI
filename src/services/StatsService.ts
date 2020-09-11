@@ -2,27 +2,42 @@ import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
 import { IStatsService } from './IStatsService';
-import { PokemonCalcStatsResponse } from '../models';
-import { CsvType } from './../enumerators';
-import { CsvHelper } from './../helpers';
+import { IPokemonStatsRepository } from './../repositories';
+import { PokemonStats } from '../models/data';
+import { GameVersionType } from './../enumerators';
 import { GameVersion } from './../types';
+import { TYPES } from './types';
 
 // 計算式参考
 // https://yakkun.com/dp/system.htm#calc
 @injectable()
 export class StatsService implements IStatsService {
+  private pokemonStatsRepository: IPokemonStatsRepository;
+
+  public constructor (
+    @inject(TYPES.IPokemonStatsRepository) pokemonStatsRepository: IPokemonStatsRepository) {
+      this.pokemonStatsRepository = pokemonStatsRepository;
+    }
+
   public calc(pokemonId: string, version: GameVersion, 
-  hpIndividual: number, attackIndividual: number, defenseIndividual: number, spAttackIndividual: number, spDefenseIndividual: number, speedIndividual: number,
-  hpEffort: number, attackEffort: number, defenseEffort: number, spAttackEffort: number, spDefenseEffort: number, speedEffort: number,
-  attackNature: number, defenseNature: number, spAttackNature: number, spDefenseNature: number, speedNature: number): PokemonCalcStatsResponse {
+    hpIndividual: number, attackIndividual: number, defenseIndividual: number, spAttackIndividual: number, spDefenseIndividual: number, speedIndividual: number,
+    hpEffort: number, attackEffort: number, defenseEffort: number, spAttackEffort: number, spDefenseEffort: number, speedEffort: number,
+    attackNature: number, defenseNature: number, spAttackNature: number, spDefenseNature: number, speedNature: number,
+    option: number | undefined): PokemonStats {
     
     // 種族値
-    const csvStatses = CsvHelper.read(CsvHelper.filename(CsvType.POKEMON_STATSES, version))
-    const stats = csvStatses.find((x:any) => x.pokemonId === pokemonId)
+    const stats = this.pokemonStatsRepository.get(pokemonId, version)
 
     let hp: number
-    if (version === "2") {
+    if (version === GameVersionType.PIKA_VEE) {
       hp = this.calcHPByPikaVee(stats.hp, hpIndividual)
+    } else if (version === GameVersionType.SWSH) {
+      hp = this.calcHP(stats.hp, hpIndividual, hpEffort)
+      // ソードシールドはダイマックス補正が設定される
+      if (option !== undefined) {
+        const dynamax = 1.50 + option * 0.05
+        hp *= dynamax
+      }
     } else {
       hp = this.calcHP(stats.hp, hpIndividual, hpEffort)
     }
@@ -32,7 +47,7 @@ export class StatsService implements IStatsService {
     let spAttack: number
     let spDefense: number
     let speed: number
-    if (version === "2") {
+    if (version === GameVersionType.PIKA_VEE) {
       attack = this.calcOtherByPikaVee(stats.attack, attackIndividual, attackNature)
       defense = this.calcOtherByPikaVee(stats.defense, defenseIndividual, defenseNature)
       spAttack = this.calcOtherByPikaVee(stats.spAttack, spAttackIndividual, spAttackNature)
@@ -46,14 +61,7 @@ export class StatsService implements IStatsService {
       speed = this.calcOther(stats.speed, speedIndividual, speedEffort, speedNature)
     }
 
-    const result = new PokemonCalcStatsResponse(
-      pokemonId,
-      hp, attack, defense, spAttack, spDefense, speed,
-      hpIndividual, attackIndividual, defenseIndividual, spAttackIndividual, spDefenseIndividual, speedIndividual,
-      hpEffort, attackEffort, defenseEffort, spAttackEffort, spDefenseEffort, speedEffort,
-      attackNature, defenseNature, spAttackNature, spDefenseNature, speedNature
-    )
-
+    const result = new PokemonStats(pokemonId, hp, attack, defense, spAttack, spDefense, speed)
     return result
   }
 

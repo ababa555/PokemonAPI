@@ -5,7 +5,7 @@ import { TYPES } from '../services/types';
 import { IPokemonNameService } from './IPokemonNameService';
 import { IPokemonRepository, IPokemonNameRepository } from '../repositories'
 import { Pokemon } from '../models/data';
-import { PokemonNameResponse } from '../models/response';
+import { PokemonName } from '../models/data';
 import { GameVersion } from './../types';
 import { ArrayHelper } from './../helpers';
 
@@ -21,17 +21,16 @@ export class PokemonNameService implements IPokemonNameService {
       this.nameRepository = nameRepository
   }
 
-  public find(version: GameVersion, localLanguageId: string, includeAnotherForm: string): PokemonNameResponse[] {
+  public find(version: GameVersion, localLanguageId: string, includeAnotherForm: string): PokemonName[] {
     const pokemons = this.repository.find(version, includeAnotherForm)
     const pokemonNames = this.nameRepository.find(version, localLanguageId)
   
-    const result: PokemonNameResponse[] = []
+    const result: PokemonName[] = []
 
     pokemons.forEach((pokemon: Pokemon) => {
       const pokemonName = ArrayHelper.ensure(
         pokemonNames.find(x => x.pokemonId === pokemon.id && x.localLanguageId === localLanguageId))
-      const response = new PokemonNameResponse(pokemonName.pokemonId, pokemonName.localLanguageId, pokemonName.name, pokemonName.formName)
-      result.push(response)
+      result.push(pokemonName)
     });
 
     return result
