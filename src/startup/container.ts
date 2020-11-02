@@ -1,7 +1,7 @@
 import { Container } from "inversify";
 
 import { TYPES } from "../services/types";
-import { IPokemonService, PokemonService, IPokemonNameService, PokemonNameService, IStatsService, StatsService } from "../services";
+import { ICalculaionService, CalculaionService, IPokemonService, PokemonService, IPokemonNameService, PokemonNameService, IStatsService, StatsService } from "../services";
 import { 
   IPokemonNameRepository, PokemonNameRepository, 
   IPokemonRepository, PokemonRepository,
@@ -20,6 +20,11 @@ const container = new Container();
 container
 .bind<PokemonController>(TYPES.PokemonController)
 .to(PokemonController)
+.inSingletonScope();
+
+container
+.bind<ICalculaionService>(TYPES.ICalculaionService)
+.to(CalculaionService)
 .inSingletonScope();
 
 container

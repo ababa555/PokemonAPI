@@ -5,8 +5,9 @@ import { TYPES } from '../services/types';
 import { IPokemonService } from './';
 import { IPokemonAbilityRepository, IPokemonEvolutionChainRepository, IPokemonMoveRepository, IMoveRepository, IPokemonRepository, IPokemonNameRepository, IPokemonStatsRepository, IPokemonTypeRepository } from '../repositories'
 import { ArrayHelper } from '../helpers';
+import { GameVersionType } from './../enumerators';
 import { GameVersion } from './../types';
-import { PokemonWithEverything, Pokemon, PokemonMove, Move } from './../models/data';
+import { PokemonWithEverything, Pokemon, PokemonMove, PokemonAbility } from './../models/data';
 
 @injectable()
 export class PokemonService implements IPokemonService {
@@ -60,7 +61,10 @@ export class PokemonService implements IPokemonService {
 
   private getPokemon(pokemon: Pokemon, version: GameVersion, localLanguageId: string): PokemonWithEverything {
     // 特性
-    const abilities = this.pokemonAbilityRepository.find(pokemon.id, version)
+    let abilities: PokemonAbility[] = []
+    if (version !== GameVersionType.PIKA_VEE) {
+      abilities = this.pokemonAbilityRepository.find(pokemon.id, version)
+    }
 
     // 進化情報
     const evolutionChains = this.pokemonEvolutionChainRepository.find(pokemon.id, version)

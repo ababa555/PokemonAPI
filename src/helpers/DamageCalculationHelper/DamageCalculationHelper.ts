@@ -1,14 +1,14 @@
-import { Move, PokemonType, PokemonName } from './../models/data';
-import { Move as MoveType } from './../types';
-import { MoveType as MoveEnum, DamageType } from './../enumerators';
+import { Move, PokemonName, PokemonStats } from './../../models/data';
+import { Move as MoveType } from './../../types';
+import { MoveType as MoveEnum, DamageType } from './../../enumerators';
 
 export class DamageCalculationHelper {
   /**
    * 技が直接攻撃かどうかを判定します。
-   * https://wiki.xn--rckteqa2e.com/wiki/%E7%9B%B4%E6%8E%A5%E6%94%BB%E6%92%83
+   * Note:https://wiki.xn--rckteqa2e.com/wiki/%E7%9B%B4%E6%8E%A5%E6%94%BB%E6%92%83
    * @returns true:直接攻撃 false:直接攻撃ではない
    */
-  IsDirectAttack(move: Move): boolean {
+  static isDirectAttack(move: Move): boolean {
     if (move.damageType === DamageType.PHYSICAL) {
       // 直接攻撃に該当しない物理わざはかたいツメの対象
       if (move.name !== 'いわおとし' && move.name !== 'いわなだれ' && move.name !== 'うちおとす' && 
@@ -45,10 +45,10 @@ export class DamageCalculationHelper {
 
   /**
    * かたやぶりで無視される特性かを判定します。
-   * https://wiki.xn--rckteqa2e.com/wiki/%E3%81%8B%E3%81%9F%E3%82%84%E3%81%B6%E3%82%8A
+   * Note:https://wiki.xn--rckteqa2e.com/wiki/%E3%81%8B%E3%81%9F%E3%82%84%E3%81%B6%E3%82%8A
    * @returns true:かたやぶりで無視される false:かたやぶりで無視されない
    */
-  static IsKatayaburi(attackAbility: string, defenceAbility: string): boolean {
+  static isKatayaburi(attackAbility: string, defenceAbility: string): boolean {
     if (attackAbility === 'かたやぶり' || attackAbility === 'ターボブレイズ' ||attackAbility === 'テラボルテージ') {
       if (defenceAbility === 'あついしぼう' || defenceAbility === 'あまのじゃく' || defenceAbility === 'アロマベール' || 
         defenceAbility === 'かいりきバサミ' || defenceAbility === 'カブトアーマー' || defenceAbility === 'がんじょう' || 
@@ -78,564 +78,10 @@ export class DamageCalculationHelper {
   }
 
   /**
-   * わざのタイプが上書きされるかを判定します。
-   * @returns 上書きするタイプ or null：上書き無し
-   */
-  overrideMoveType(move:Move, attackAbility:string, defenceAbility:string, weather:string, isZ: boolean) {
-
-    if (defenceAbility != 'ノーてんき' && defenceAbility != 'エアロック') {
-      if (move.name === 'ウェザーボール') {
-        if (weather === 'にほんばれ') {
-          return 'ほのお'
-        }
-        if (weather === 'あめ') {
-          return 'みず'
-        }
-        if (weather === 'すなあらし') {
-          return 'いわ'
-        }
-        if (weather === 'おおひでり') {
-          return 'ほのお'
-        }
-        if (weather === 'おおあめ') {
-          return 'みず'
-        }
-        if (weather === 'あられ') {
-          return 'こおり'
-        }
-      }
-    }
-
-    if (attackAbility === 'エレキスキン') {
-      if (!isZ) {
-        if (move.typeId === MoveEnum.Normal) {
-          return 'でんき'
-        }
-      }
-    }
-
-    if (attackAbility === 'スカイスキン') {
-      if (!isZ) {
-        if (move.typeId === MoveEnum.Normal) {
-          return 'ひこう'
-        }
-      }
-    }
-
-    if (attackAbility === 'フェアリースキン') {
-      if (!isZ) {
-        if (move.typeId === MoveEnum.Normal) {
-          return 'フェアリー'
-        }
-      }
-    }
-
-    if (attackAbility === 'フリーズスキン') {
-      if (!isZ) {
-        if (move.typeId === MoveEnum.Normal) {
-          return 'こおり'
-        }
-      }
-    }
-
-    if (attackAbility === 'ノーマルスキン') {
-      if (!isZ) {
-        if (move.typeId !== MoveEnum.Normal) {
-          return 'ノーマル'
-        }
-      }
-    }
-    return null
-  }
-
-  /**
-   * わざ名が上書きされるかを判定します。
-   * @returns 上書きするわざ名 or null：上書き無し
-   */
-  overrideMoveName(attackPokemonName: PokemonName, move: Move, isZ: boolean, isZExclusive: boolean) {
-    const pokemonName = attackPokemonName.name
-    const pokemonFormName = attackPokemonName.formName
-    
-    if (isZExclusive) {
-      if (pokemonName === 'ピカチュウ') {
-        if (move.name === 'ボルテッカー') {
-          return 'ひっさつのピカチュート'
-        }
-      }
-      if (pokemonName === 'サトシのピカチュウ') {
-        if (move.name === '１０まんボルト') {
-          return '１０００まんボルト'
-        }
-      }
-      if (pokemonName === 'ライチュウ' && pokemonFormName === 'アローラのすがた') {
-        if (move.name === '１０まんボルト') {
-          return 'ライトニングサーフライド'
-        }
-      }
-      if (pokemonName === 'カビゴン') {
-        if (move.name === 'ギガインパクト') {
-          return 'ほんきをだすこうげき'
-        }
-      }
-      if (pokemonName === 'ミュウ') {
-        if (move.name === 'サイコキネシス') {
-          return 'オリジンズスーパーノヴァ'
-        }
-      }
-      if (pokemonName === 'ジュナイパー') {
-        if (move.name === 'かげぬい') {
-          return 'シャドーアローズストライク'
-        }
-      }
-      if (pokemonName === 'ガオガエン') {
-        if (move.name === 'ＤＤラリアット') {
-          return 'ハイパーダーククラッシャー'
-        }
-      }
-      if (pokemonName === 'アシレーヌ') {
-        if (move.name === 'うたかたのアリア') {
-          return 'わだつみのシンフォニア'
-        }
-      }
-      if (pokemonName === 'ルガルガン') {
-        if (move.name === 'ストーンエッジ') {
-          return 'ラジアルエッジストーム'
-        }
-      }
-      if (pokemonName === 'ミミッキュ') {
-        if (move.name === 'じゃれつく') {
-          return 'ぽかぼかフレンドタイム'
-        }
-      }
-      if (pokemonName === 'ジャラランガ') {
-        if (move.name === 'スケイルノイズ') {
-          return 'ブレイジングソウルビート'
-        }
-      }
-      if (pokemonName === 'カプ・コケコ' || pokemonName === 'カプ・テテフ' ||
-          pokemonName === 'カプ・ブルル' || pokemonName === 'カプ・レヒレ') {
-        if (move.name === 'しぜんのいかり') {
-          // 相手の残りHPの3/4のダメージを与える。
-          return 'ガーディアン・デ・アローラ'
-        }
-      }
-      if (pokemonName === 'ソルガレオ') {
-        if (move.name === 'メテオドライブ') {
-          // 相手の特性を無視して攻撃する
-          return 'サンシャインスマッシャー'
-        }
-      }
-      if (pokemonName === 'ネクロズマ' && pokemonFormName === 'たそがれのたてがみ(日食)') {
-        if (move.name === 'メテオドライブ') {
-          // 相手の特性を無視して攻撃する
-          return 'サンシャインスマッシャー'
-        }
-      }
-      if (pokemonName === 'ルナアーラ') {
-        if (move.name === 'シャドーレイ') {
-          // 相手の特性を無視して攻撃する
-          return 'ムーンライトブラスター'
-        }
-      }
-      if (pokemonName === 'ネクロズマ' && pokemonFormName === 'あかつきのつばさ(月食)') {
-        if (move.name === 'シャドーレイ') {
-          // 相手の特性を無視して攻撃する
-          return 'ムーンライトブラスター'
-        }
-      }
-      if (pokemonName === 'ネクロズマ' && pokemonFormName === 'ウルトラネクロズマ') {
-        if (move.name === 'フォトンゲイザー') {
-          return 'てんこがすめつぼうのひかり'
-        }
-      }
-      if (pokemonName === 'マーシャドー') {
-        if (move.name === 'シャドースチール') {
-          return 'しちせいだっこんたい'
-        }
-      }
-    }
-
-    if (isZ) {
-      if (move.damageType === DamageType.STATUS) {
-        return null
-      }
-      
-      if (move.typeId === MoveEnum.Normal) {
-        return 'ウルトラダッシュアタック'
-      }
-      if (move.typeId === MoveEnum.Fire) {
-        return 'ダイナミックフルフレイム'
-      }
-      if (move.typeId === MoveEnum.Water) {
-        return 'スーパーアクアトルネード'
-      }
-      if (move.typeId === MoveEnum.Grass) {
-        return 'ブルームシャインエクストラ'
-      }
-      if (move.typeId === MoveEnum.Electric) {
-        return 'スパーキングギガボルト'
-      }
-      if (move.typeId === MoveEnum.Ice) {
-        return 'レイジングジオフリーズ'
-      }
-      if (move.typeId === MoveEnum.Fighting) {
-        return 'ぜんりょくむそうげきれつけん'
-      }
-      if (move.typeId === MoveEnum.Poison) {
-        return 'アシッドポイズンデリート'
-      }
-      if (move.typeId === MoveEnum.Ground) {
-        return 'ライジングランドオーバー'
-      }
-      if (move.typeId === MoveEnum.Flying) {
-        return 'ファイナルダイブクラッシュ'
-      }
-      if (move.typeId === MoveEnum.Psychic) {
-        return 'マキシマムサイブレイカー'
-      }
-      if (move.typeId === MoveEnum.Bug) {
-        return 'ぜったいほしょくかいてんざん'
-      }
-      if (move.typeId === MoveEnum.Rock) {
-        return 'ワールズエンドフォール'
-      }
-      if (move.typeId === MoveEnum.Ghost) {
-        return 'むげんあんやへのいざない'
-      }
-      if (move.typeId === MoveEnum.Dragon) {
-        return 'アルティメットドラゴンバーン'
-      }
-      if (move.typeId === MoveEnum.Dark) {
-        return 'ブラックホールイクリプス'
-      }
-      if (move.typeId === MoveEnum.Steel) {
-        return 'ちょうぜつらせんれんげき'
-      }
-      if (move.typeId === MoveEnum.Fairy) {
-        return 'ラブリースターインパクト'
-      }
-    }
-
-    return null
-  }
-
-  /**
-   * わざの威力が上書きされるかを判定します。
-   * @returns 上書きしたわざの威力 or null：上書き無し
-   */
-  overrideMovePower(attackPokemonName: PokemonName, move: Move, attackAbility: string, defenceAbility: string, weather: string, isZ: boolean, isZExclusive: boolean): number | null {
-    
-    if (move.damageType === DamageType.STATUS) {
-      return null;
-    }
-
-    if (!isZ && !isZExclusive) {
-      if (move.name === 'ウェザーボール') {
-        if (defenceAbility != 'ノーてんき' && defenceAbility != 'エアロック') {
-          if (weather === 'にほんばれ' || weather === 'あめ' || weather === 'すなあらし' ||
-            weather === 'おおひでり' || weather === 'おおあめ' || weather === 'あられ') {
-            return 100
-          }
-        }
-      }
-    }
-
-    const pokemonName = attackPokemonName.name
-    const pokemonFormName = attackPokemonName.formName
-
-    if (isZExclusive) {
-      if (pokemonName === 'ピカチュウ') {
-        if (move.name === 'ボルテッカー') {
-          return 210
-        }
-      }
-      if (pokemonName === 'サトシのピカチュウ') {
-        if (move.name === '１０まんボルト') {
-          return 195
-        }
-      }
-      if (pokemonName === 'ライチュウ' && pokemonFormName === 'アローラのすがた') {
-        if (move.name === '１０まんボルト') {
-          return 175
-        }
-      }
-      if (pokemonName === 'カビゴン') {
-        if (move.name === 'ギガインパクト') {
-          return 210
-        }
-      }
-      if (pokemonName === 'ミュウ') {
-        if (move.name === 'サイコキネシス') {
-          return 185
-        }
-      }
-      if (pokemonName === 'ジュナイパー') {
-        if (move.name === 'かげぬい') {
-          return 180
-        }
-      }
-      if (pokemonName === 'ガオガエン') {
-        if (move.name === 'ＤＤラリアット') {
-          return 180
-        }
-      }
-      if (pokemonName === 'アシレーヌ') {
-        if (move.name === 'うたかたのアリア') {
-          return 195
-        }
-      }
-      if (pokemonName === 'ルガルガン') {
-        if (move.name === 'ストーンエッジ') {
-          return 190
-        }
-      }
-      if (pokemonName === 'ミミッキュ') {
-        if (move.name === 'じゃれつく') {
-          return 190
-        }
-      }
-      if (pokemonName === 'ジャラランガ') {
-        if (move.name === 'スケイルノイズ') {
-          return 185
-        }
-      }
-      if (pokemonName === 'カプ・コケコ' || pokemonName === 'カプ・テテフ' ||
-          pokemonName === 'カプ・ブルル' || pokemonName === 'カプ・レヒレ') {
-        if (move.name === 'しぜんのいかり') {
-          // 相手の残りHPの3/4のダメージを与える。
-        }
-      }
-      if (pokemonName === 'ソルガレオ') {
-        if (move.name === 'メテオドライブ') {
-          // 相手の特性を無視して攻撃する
-          return 200
-        }
-      }
-      if (pokemonName === 'ネクロズマ' && pokemonFormName === 'たそがれのたてがみ(日食)') {
-        if (move.name === 'メテオドライブ') {
-          // 相手の特性を無視して攻撃する
-          return 200
-        }
-      }
-      if (pokemonName === 'ルナアーラ') {
-        if (move.name === 'シャドーレイ') {
-          // 相手の特性を無視して攻撃する
-          return 200
-        }
-      }
-      if (pokemonName === 'ネクロズマ' && pokemonFormName === 'あかつきのつばさ(月食)') {
-        if (move.name === 'シャドーレイ') {
-          // 相手の特性を無視して攻撃する
-          return 200
-        }
-      }
-      if (pokemonName === 'ネクロズマ' && pokemonFormName === 'ウルトラネクロズマ') {
-        if (move.name === 'フォトンゲイザー') {
-          return 200
-        }
-      }
-      if (pokemonName === 'マーシャドー') {
-        if (move.name === 'シャドースチール') {
-          return 195
-        }
-      }
-    }
-
-    if (isZ) {
-      if (move.name === 'メガドレイン') {
-        return 120
-      }
-      if (move.name === 'Vジェネレート') {
-        return 220
-      }
-      if (move.name === 'コアパニッシャー') {
-        return 140
-      }
-      if (move.name === 'サウザンアロー') {
-        return 180
-      }
-      if (move.name === 'グランドフォース') {
-        return 185
-      }
-      if (move.name === 'マルチアタック') {
-        return 185
-      }
-      if (move.name === 'フライングプレス') {
-        return 170
-      }
-      if (move.name === 'ギアソーサー') {
-        return 180
-      }
-      if (move.name === 'スイープビンタ') {
-        return 140
-      }
-      if (move.name === 'タネマシンガン') {
-        return 140
-      }
-      if (move.name === 'ダブルアタック') {
-        return 140
-      }
-      if (move.name === 'つららばり') {
-        return 140
-      }
-      if (move.name === 'ボーンラッシュ') {
-        return 140
-      }
-      if (move.name === 'ミサイルばり') {
-        return 140
-      }
-      if (move.name === 'ロックブラスト') {
-        return 140
-      }
-      if (move.name === 'アシストパワー') {
-        return 160
-      }
-      if (move.name === 'ウェザーボール') {
-        return 160
-      }
-      if (move.name === 'たたりめ') {
-        return 160
-      }
-      if (move.name === 'つけあがる') {
-        return 160
-      }
-      if (move.name === 'エレキボール') {
-        return 160
-      }
-      if (move.name === 'おしおき') {
-        return 160
-      }
-      if (move.name === 'おんがえし') {
-        return 160
-      }
-      if (move.name === 'きしかいせい') {
-        return 160
-      }
-      if (move.name === 'きりふだ') {
-        return 160
-      }
-      if (move.name === 'くさむすび') {
-        return 160
-      }
-      if (move.name === 'けたぐり') {
-        return 160
-      }
-      if (move.name === 'しぜんのめぐみ') {
-        return 160
-      }
-      if (move.name === 'じたばた') {
-        return 160
-      }
-      if (move.name === 'しぼりとる') {
-        return 180
-      }
-      if (move.name === 'ジャイロボール') {
-        return 160
-      }
-      if (move.name === 'にぎりつぶす') {
-        return 180
-      }
-      if (move.name === 'ヒートスタンプ') {
-        return 160
-      }
-      if (move.name === 'ヘビーボンバー') {
-        return 160
-      }
-      if (move.name === 'マグニチュード') {
-        return 140
-      }
-      if (move.name === 'やつあたり') {
-        return 160
-      }
-      if (move.name === 'サイコウェーブ') {
-        return 100
-      }
-      if (move.name === 'ソニックブーム') {
-        return 100
-      }
-      if (move.name === 'ちきゅうなげ') {
-        return 100
-      }
-      if (move.name === 'ナイトヘッド') {
-        return 100
-      }
-      if (move.name === 'りゅうのいかり') {
-        return 100
-      }
-      if (move.name === 'いかりのまえば') {
-        return 100
-      }
-      if (move.name === 'いのちがけ') {
-        return 180
-      }
-      if (move.name === 'がむしゃら') {
-        return 160
-      }
-      if (move.name === 'しぜんのいかり') {
-        return 100
-      }
-      if (move.name === 'カウンター') {
-        return 100
-      }
-      if (move.name === 'ミラーコート') {
-        return 100
-      }
-      if (move.name === 'メタルバースト') {
-        return 100
-      }
-      if (move.name === 'じわれ') {
-        return 180
-      }
-      if (move.name === 'ぜったいれいど') {
-        return 180
-      }
-      if (move.name === 'つのドリル') {
-        return 180
-      }
-      if (move.name === 'ハサミギロチン') {
-        return 180
-      }
-
-      const movePower = parseInt(move.power)
-      if (movePower >= 140 && 250 <= movePower) {
-        return 200
-      }
-      if (movePower >= 130 && 139 <= movePower) {
-        return 195
-      }
-      if (movePower >= 120 && 129 <= movePower) {
-        return 190
-      }
-      if (movePower >= 110 && 119 <= movePower) {
-        return 185
-      }
-      if (movePower >= 100 && 109 <= movePower) {
-        return 180
-      }
-      if (movePower >= 90 && 99 <= movePower) {
-        return 175
-      }
-      if (movePower >= 80 && 89 <= movePower) {
-        return 160
-      }
-      if (movePower >= 70 && 79 <= movePower) {
-        return 140
-      }
-      if (movePower >= 60 && 69 <= movePower) {
-        return 120
-      }
-      if (movePower >= 10 && 59 <= movePower) {
-        return 100
-      }
-    }
-    return null;
-  }
-
-  /**
    * タイプによる無効を判定を判定します。
    * @returns true：無効 or false：有効
    */
-  IsInvalidByType(move: Move, defenceId: string, defencePokemonTypes: PokemonType[]): boolean {
+  static isInvalidByType(move: Move, defencePokemonTypes: MoveType[]): boolean {
     // if (move.name === 'めざめるパワー') {
     //   let damages = Enumerable.from(typedamage)
     //   .where(x => x.Id == defenceId).select(x => x.Damages).singleOrDefault()
@@ -646,97 +92,97 @@ export class DamageCalculationHelper {
 
     // いかりのこな(『くさ』タイプや特性『ぼうじん』のポケモンには無効)
     if (move.name === 'いかりのこな') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
 
     // おにび(『ほのお』タイプには無効)
     if (move.name === 'おにび') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Fire)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Fire)) {
         return true
       }
     }
 
     // キノコのほうし(『くさ』タイプや特性『ぼうじん』のポケモンには無効)
     if (move.name === 'キノコのほうし') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
 
     // しびれごな	(『でんき』タイプや『くさ』タイプ、特性『ぼうじん』のポケモンには無効)
     if (move.name === 'しびれごな') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Electric) ||
-          defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Electric) ||
+          defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
 
     // でんじは(『じめん』タイプや『でんき』タイプには無効)
     if (move.name === 'でんじは') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Ground) ||
-          defencePokemonTypes.some(x => x.typeId === MoveEnum.Electric)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Ground) ||
+          defencePokemonTypes.some(typeId => typeId === MoveEnum.Electric)) {
         return true
       }
     }
 
     // どくガス(『どく』タイプや『はがね』タイプには無効)
     if (move.name === 'どくガス') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Poison) ||
-          defencePokemonTypes.some(x => x.typeId === MoveEnum.Steel)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Poison) ||
+          defencePokemonTypes.some(typeId => typeId === MoveEnum.Steel)) {
         return true
       }
     }
     
     // どくどく(『どく』タイプや『はがね』タイプには無効)
     if (move.name === 'どくどく') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Poison) ||
-          defencePokemonTypes.some(x => x.typeId === MoveEnum.Steel)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Poison) ||
+          defencePokemonTypes.some(typeId => typeId === MoveEnum.Steel)) {
         return true
       }
     }
 
     // どくのこな(『どく』タイプや『はがね』タイプ、『くさ』タイプ、特性『ぼうじん』のポケモンには無効)
     if (move.name === 'どくのこな') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Poison) ||
-          defencePokemonTypes.some(x => x.typeId === MoveEnum.Steel) ||
-          defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Poison) ||
+          defencePokemonTypes.some(typeId => typeId === MoveEnum.Steel) ||
+          defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
 
     // ねむりごな(『くさ』タイプや特性『ぼうじん』のポケモンには無効)
     if (move.name === 'ねむりごな') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
 
     // ふんじん(『くさ』タイプや特性『ぼうじん』のポケモンには無効)
     if (move.name === 'ふんじん') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
 
     // へびにらみ(『でんき』タイプには無効)
     if (move.name === 'へびにらみ') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Electric)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Electric)) {
         return true
       }
     }
 
     // やどりぎのタネ(『くさ』タイプのポケモンには無効)
     if (move.name === 'やどりぎのタネ') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
 
     // わたほうし(『くさ』タイプや特性『ぼうじん』のポケモンには無効)
     if (move.name === 'わたほうし') {
-      if (defencePokemonTypes.some(x => x.typeId === MoveEnum.Grass)) {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Grass)) {
         return true
       }
     }
@@ -748,7 +194,7 @@ export class DamageCalculationHelper {
    * 特性による無効を判定を判定します。
    * @returns true：無効 or false：有効
    */
-  static IsInvalidByAbility(move: Move, attackId: string, defencePokemonTypeIds: MoveType[], attackAbility: string, defenceAbility: string): boolean {
+  static isInvalidByAbility(move: Move, defencePokemonTypes: MoveType[], attackAbility: string, defenceAbility: string): boolean {
     // let damage = null
     // let attackPoke = Enumerable.from(data)
     // .where(x => x.Id == attackId).singleOrDefault()
@@ -761,7 +207,7 @@ export class DamageCalculationHelper {
     }
 
     // かたやぶり
-    if (this.IsKatayaburi(attackAbility, defenceAbility)) {
+    if (this.isKatayaburi(attackAbility, defenceAbility)) {
       return false;
     }
 
@@ -769,7 +215,7 @@ export class DamageCalculationHelper {
     // .where(x => x.Id == defenceId).select(x => x.Damages).singleOrDefault()
 
     // ふしぎなまもりの仕様
-    // https://wiki.xn--rckteqa2e.com/wiki/%E3%81%B5%E3%81%97%E3%81%8E%E3%81%AA%E3%81%BE%E3%82%82%E3%82%8A
+    // Note:https://wiki.xn--rckteqa2e.com/wiki/%E3%81%B5%E3%81%97%E3%81%8E%E3%81%AA%E3%81%BE%E3%82%82%E3%82%8A
     if (defenceAbility === 'ふしぎなまもり') {
       if (move.damageType !== DamageType.STATUS) {
         // Note:めざめるパワーは面倒なのでとりあえず考慮しない
@@ -777,7 +223,7 @@ export class DamageCalculationHelper {
             move.name != 'シャドーレイ' && 
             move.name != 'メテオドライブ' && 
             move.name != 'フォトンゲイザー') {
-          const effective = this.GetEffective(move.typeId, defencePokemonTypeIds)
+          const effective = this.getEffective(move.typeId, defencePokemonTypes)
           if (effective != 2 && effective != 4) {
             return true
           }
@@ -1115,11 +561,246 @@ export class DamageCalculationHelper {
     return false
   }
 
+  static getHarikiri(attackAbility: string): number {
+    if (attackAbility === 'はりきり') {
+      return 6144 / 4096
+    }
+    return 1
+  }
+
+  static getSunaarashi(defencePokemonTypes: MoveType[], move: Move, weather: string): number {
+    if (weather === 'すなあらし') {
+      if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Rock)) {
+        if (move.damageType === DamageType.SPECIAL) {
+          return 6144 / 4096
+        }
+      }
+    }
+    return 1
+  }
+
+  static getOyakoAi(attackAbility: string): number {
+    if (attackAbility === 'おやこあい') {
+      return 5120 / 4096
+    }
+    return 1
+  }
+
+  // 天気弱化
+  static weakenWeather(defencePokemonTypes: MoveType[], move: Move, weather: string) {
+    if (weather === 'にほんばれ') {
+      if (move.typeId === MoveEnum.Water) {
+        return 2048 / 4096
+      }
+    }
+
+    if (weather === 'あめ') {
+      if (move.typeId === MoveEnum.Fire) {
+        return 2048 / 4096
+      }
+    }
+
+    if (weather === 'らんきりゅう') {
+      if (move.typeId === MoveEnum.Electric || move.typeId === MoveEnum.Ice || move.typeId === MoveEnum.Rock) {
+        if (defencePokemonTypes.some(typeId => typeId === MoveEnum.Flying)) {
+          return 2048 / 4096
+        }
+      }
+    }
+    return 1
+  }
+
+  // 天気強化
+  static strengthenWeather(move: Move, weather: string, defenceAbility: string){
+    let result = 1;
+
+    if (defenceAbility === 'ノーてんき' || defenceAbility === 'エアロック') {
+      return result;
+    }
+    
+    if (weather === 'にほんばれ') {
+      if (move.typeId === MoveEnum.Fire) {
+        result = result * 6144 / 4096
+      }
+    }
+    
+    if (weather === 'あめ') {
+      if (move.typeId === MoveEnum.Water) {
+        result = result * 6144 / 4096
+      }
+    }
+
+    if (weather === 'すなあらし') {
+      if (move.typeId === MoveEnum.Rock) {
+        result = result * 6144 / 4096
+      }
+    }
+
+    if (weather === 'おおひでり') {
+      if (move.typeId === MoveEnum.Fire) {
+        result = result * 6144 / 4096
+      }
+    }
+
+    if (weather === 'おおあめ') {
+      if (move.typeId === MoveEnum.Water) {
+        result = result * 6144 / 4096
+      }
+    }
+
+    if (move.name === 'ウェザーボール') {
+      if (weather === 'にほんばれ') {
+        result = result * 8192 / 4096
+      }
+      if (weather === 'あめ') {
+        result = result * 8192 / 4096
+      }
+      if (weather === 'すなあらし') {
+        result = result * 8192 / 4096
+      }
+      if (weather === 'おおひでり') {
+        result = result * 8192 / 4096
+      }
+      if (weather === 'おおあめ') {
+        result = result * 8192 / 4096
+      }
+    }
+    return 1
+  }
+
+  // タイプ一致 or てきおうりょく
+  static typeMatchOrCapacity(attackPokemonTypes: MoveType[], move: Move, attackAbility: string) {
+    if (attackPokemonTypes.some(typeId => typeId === move.typeId)) {
+      if (attackAbility === 'てきおうりょく') {
+        return 6144 / 4096
+      } else {
+        return 8192 / 4096
+      }
+    }
+    return 1;
+  }
+
+  static calcN(damage: string) {
+    let result = 1.0
+	  if (damage == '1x') {
+      result = 1.0
+    } else if (damage == '0x') {
+      result = 0.0
+    } else if (damage == '1/4x') {
+      result = 0.25
+    } else if (damage == '1/2x') {
+      result = 0.5
+    } else if (damage == '2x') {
+      result = 2.0
+    } else if (damage == '4x') {
+      result = 4.0
+    } else if (damage == '無効') {
+      result = 0.0
+    } else {
+      result = 1.0
+    }
+    return result
+  }
+
+  // タイプ一致 or てきおうりょく
+  static fixedDamage(move: Move, defenceHp: number) {
+    if (move.name === 'ソニックブーム') {
+      return {
+        min: 20,
+        max: 20
+      };
+    }
+    if (move.name === 'りゅうのいかり') {
+      return {
+        min: 40,
+        max: 40
+      };
+    }
+    if (move.name === 'ちきゅうなげ' || move.name === 'ナイトヘッド') {
+      // 攻撃側のレベル分のダメージ
+      return {
+        min: 50,
+        max: 50
+      };
+    }
+    if (move.name === 'サイコウェーブ') {
+      // 攻撃側のレベル×0.5～攻撃側のレベル×1.5
+      return {
+        min: 25,
+        max: 75
+      };
+    }
+    if (move.name === 'いかりのまえば' || move.name === 'しぜんのいかり') {
+      let damage = Math.floor(defenceHp / 2)
+      return {
+        min: damage,
+        max: damage
+      };
+    }
+    if (move.name === 'がむしゃら') {
+      // (相手の残りHP-自分の残りHP)のダメージ
+       return {
+         min: null,
+         max: null
+       };
+    }
+    if (move.name === 'カウンター') {
+      // (使用したターンの最後に受けた物理技のダメージ×2)のダメージ
+       return {
+         min: null,
+         max: null
+       };
+    }
+    if (move.name === 'ミラーコート') {
+      // (使用したターンの最後に受けた特殊技のダメージ×2)のダメージ
+       return {
+         min: null,
+         max: null
+       };
+    }
+    if (move.name === 'がまん') {
+      // (がまんになってから受けたダメージ×2)のダメージ
+       return {
+         min: null,
+         max: null
+       };
+    }
+    if (move.name === 'メタルバースト') {
+      // 	(使用したターンの最後に受けたダメージ×1.5)のダメージ
+       return {
+         min: null,
+         max: null
+       };
+    }
+    if (move.name === 'いのちがけ') {
+      // 自分の残りHP分のダメージ
+       return {
+         min: null,
+         max: null
+       };
+    }
+    if (move.name === 'ハサミギロチン' || move.name === 'つのドリル' || 
+    move.name === 'じわれ' || move.name === 'ぜったいれいど') {
+      return {
+        min: defenceHp,
+        max: defenceHp
+      };
+    }
+    if (move.name === 'ガーディアン・デ・アローラ') {
+      let damage = Math.floor(defenceHp * 0.75)
+      return {
+        min: damage,
+        max: damage
+      };
+    }
+    return null;
+  }
+
   /**
    * 技の効果を取得します。
    * @returns 技の効果（0 or 0.25 or 0.5 or 1 or 2 or 4）
    */
-  static GetEffective(attackMoveTypeId: MoveType, defencePokemonTypeIds: MoveType[]): number {
+  static getEffective(attackMoveType: MoveType, defencePokemonTypes: MoveType[]): number {
     const effectiveMap = new Map<[ MoveType, MoveType ], number>();
     // ノーマル
     effectiveMap.set([MoveEnum.Normal, MoveEnum.Normal], 1)
@@ -1465,8 +1146,8 @@ export class DamageCalculationHelper {
     effectiveMap.set([MoveEnum.Fairy, MoveEnum.Fairy], 1)
 
     let result = 1
-    defencePokemonTypeIds.forEach(defencePokemonTypeId => {
-      const effective = effectiveMap.get([attackMoveTypeId, defencePokemonTypeId])
+    defencePokemonTypes.forEach(defencePokemonType => {
+      const effective = effectiveMap.get([attackMoveType, defencePokemonType])
       if (effective) {
         result *= effective
       }

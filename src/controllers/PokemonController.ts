@@ -3,25 +3,29 @@ import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
 import { TYPES } from '../services/types';
-import { IPokemonService, IPokemonNameService, IStatsService } from '../services';
-import { FindNamesRequest, GetPokemonRequest, GetPokemonByNoRequest, GetStatsRequest } from '../models/request';
+import { IPokemonService, IPokemonNameService, IStatsService, ICalculaionService } from '../services';
+import { FindNamesRequest, GetPokemonRequest, GetPokemonByNoRequest, GetStatsRequest, CalcDamageRequest } from '../models/request';
 import { PokemonResponse, PokemonNameResponse, PokemonCalcStatsResponse } from '../models/response';
 import { PokemonWithEverything, PokemonName, PokemonStats } from '../models/data';
 import { StringHelper } from './../helpers';
+import { GameVersionType } from '../enumerators';
 
 @injectable()
 export class PokemonController {
   private service: IPokemonService;
   private pokemonNameService: IPokemonNameService;
   private statsService: IStatsService;
+  private calculaionService: ICalculaionService;
 
   public constructor (
     @inject(TYPES.IPokemonService) service: IPokemonService,
     @inject(TYPES.IPokemonNameService) pokemonNameService: IPokemonNameService,
-    @inject(TYPES.IStatsService) statsService: IStatsService) {
+    @inject(TYPES.IStatsService) statsService: IStatsService,
+    @inject(TYPES.ICalculaionService) calculaionService: ICalculaionService) {
       this.service = service;
       this.pokemonNameService = pokemonNameService;
       this.statsService = statsService;
+      this.calculaionService = calculaionService;
   }
 
   public findName(req: FindNamesRequest, res: Response) {
@@ -117,5 +121,78 @@ export class PokemonController {
     );
 
     res.status(200).json(response);
+  }
+
+  public calc(req: CalcDamageRequest, res: Response) {
+    const attackPokemonId = req.query.attackPokemonId
+    const defencePokemonId = req.query.defencePokemonId
+    const version = StringHelper.ToGameVersion(req.query.version)
+    const attackAbility = req.query.attackAbility
+    const defenceAbility = req.query.defenceAbility
+    const attackMoveName = req.query.attackMoveName
+    const attackIndividualValue = parseInt(req.query.attackIndividualValue)
+    const attackEffortValue = parseInt(req.query.attackEffortValue )
+    const attackNature = parseInt(req.query.attackNature)
+    const attackRank = parseInt(req.query.attackRank)
+    const attackSpIndividualValue = parseInt(req.query.attackSpIndividualValue)
+    const attackSpEffortValue = parseInt(req.query.attackSpEffortValue)
+    const attackSpNature = parseInt(req.query.attackSpNature)
+    const defenceHpIndividualValue = parseInt(req.query.defenceHpIndividualValue)
+    const defenceHpEffortValue = parseInt(req.query.defenceHpEffortValue)
+    const defenceIndividualValue = parseInt(req.query.defenceIndividualValue)
+    const defenceEffortValue = parseInt(req.query.defenceEffortValue)
+    const defenceNature = parseInt(req.query.defenceNature)
+    const defenceRank = parseInt(req.query.defenceRank)
+    const defenceSpIndividualValue = parseInt(req.query.defenceSpIndividualValue)
+    const defenceSpEffortValue = parseInt(req.query.defenceSpEffortValue)
+    const defenceSpNature = parseInt(req.query.defenceSpNature)
+    const isCritical = StringHelper.ToBoolean(req.query.isCritical)
+    const attackItem = req.query.attackItem
+    const defenceItem = req.query.defenceItem
+    const isZ = version === GameVersionType.SM ? StringHelper.ToBoolean(req.query.isZ) : false
+    const isZExclusive = GameVersionType.SM ? StringHelper.ToBoolean(req.query.isZExclusive) :false
+    const wall = req.query.wall
+    const weather = req.query.weather
+    const field = req.query.field
+    const statusAilment = req.query.statusAilment
+    const sport = req.query.sport
+    const isTokusei = StringHelper.ToBoolean(req.query.isTokusei)
+
+    const result: PokemonStats = this.calculaionService.calc(
+      attackPokemonId,
+      defencePokemonId,
+      version,
+      attackAbility,
+      defenceAbility,
+      attackMoveName,
+      attackIndividualValue,
+      attackEffortValue,
+      attackNature,
+      attackRank,
+      attackSpIndividualValue,
+      attackSpEffortValue,
+      attackSpNature,
+      defenceHpIndividualValue,
+      defenceHpEffortValue,
+      defenceIndividualValue,
+      defenceEffortValue,
+      defenceNature,
+      defenceRank,
+      defenceSpIndividualValue,
+      defenceSpEffortValue,
+      defenceSpNature,
+      isCritical,
+      attackItem,
+      defenceItem,
+      isZ,
+      isZExclusive,
+      wall,
+      weather,
+      field,
+      statusAilment,
+      sport,
+      isTokusei)
+
+    res.status(200).json("");
   }
 }

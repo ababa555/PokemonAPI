@@ -4,12 +4,20 @@ import { GameVersionType } from './../enumerators';
 import { GameVersion } from './../types';
 
 export class CsvHelper {
-  static read(filePath: string) {
+  private static cache: { [name: string]: any } = {};
+  
+  static read(filePath: string): any {
+    if (this.cache[filePath]) {
+      return this.cache[filePath]
+    }
+
     const data = fs.readFileSync(filePath)
     const options = {
       columns: true
     }
-    return csvSync(data, options)
+    const csv = csvSync(data, options)
+    this.cache[filePath] = csv
+    return csv
   }
 
   static filename(filename: string, gameVersion: GameVersion) {

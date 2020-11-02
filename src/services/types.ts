@@ -10,6 +10,7 @@ const TYPES = {
   IPokemonTypeRepository: Symbol.for("IPokemonTypeRepository"),
   IMoveRepository: Symbol.for("IMoveRepository"),
   IStatsService: Symbol.for("IStatsService"),
+  ICalculaionService: Symbol.for("ICalculaionService"),
   PokemonController: Symbol.for('PokemonController'),
 };
 
