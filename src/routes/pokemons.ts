@@ -26,7 +26,7 @@ router.get('/stats', async (req: GetStatsRequest, res, next) => {
   pokemonControllerContainer.getStats(req, res);
 })
 
-// http://localhost:3000/pokemons/calc/attackPokemonId=n001&defencePokemonId=n002&version=1&attackAbility=&defenceAbility=&attackMoveName=はっぱカッター&attackIndividualValue=31&attackEffortValue=200&attackNature=1&attackRank=0&attackSpIndividualValue=31&attackSpEffortValue=200&attackSpNature=1&defenceHpIndividualValue=31&defenceHpEffortValue=200&defenceIndividualValue=1&defenceEffortValue=31&defenceNature=200&defenceRank=1&defenceSpIndividualValue=31&defenceSpEffortValue=200&defenceSpNature=1&isCritical=false&attackItem=&defenceItem=&isZ=false&isZExclusive=false&wall=&weather=&field=&statusAilment=&sport=&isTokusei=true
+// http://localhost:3000/pokemons/calc?attackPokemonId=n1&defencePokemonId=n2&version=1&attackAbility=&defenceAbility=&attackMoveName=はっぱカッター&attackIndividualValue=31&attackEffortValue=200&attackNature=1&attackRank=0&attackSpIndividualValue=31&attackSpEffortValue=200&attackSpNature=1&defenceHpIndividualValue=31&defenceHpEffortValue=200&defenceIndividualValue=1&defenceEffortValue=31&defenceNature=200&defenceRank=1&defenceSpIndividualValue=31&defenceSpEffortValue=200&defenceSpNature=1&isCritical=false&attackItem=&defenceItem=&isZ=false&isZExclusive=false&wall=&weather=&field=&statusAilment=&sport=&isTokusei=true
 router.get('/calc', async (req: CalcDamageRequest, res, next) => {
   pokemonControllerContainer.calc(req, res);
 })

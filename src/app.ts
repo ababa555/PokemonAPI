@@ -25,12 +25,10 @@ app.get('/', (req, res, next) => {
 // });
 
 app.post('/post', (req: AbabaRequest, res, next) => {
-  console.log(req.body)
   res.send(`<h1>${req.body.name}</h1>`)
 })
 
 app.post('/post2/:hogehoge', (req: AbabaRequest, res, next) => {
-  console.log(req.params.hogehoge)
   res.send(`<h1>test /3</h1>`)
 })
 

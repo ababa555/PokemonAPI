@@ -4,7 +4,7 @@ import { DamageCalculationHelper } from '.';
 
 export class DamageCalculationHelper_correctDamage {
   // 【7】ダメージの補正値
-  static correctDamage(move: Move, wall: string, attackAbility: string, defenceAbility: string, damage: string, isCritical: boolean, attackItem: string, defenceItem: string, isTokusei: boolean) {
+  static correctDamage(move: Move, wall: string, attackAbility: string, defenceAbility: string, effective: number, isCritical: boolean, attackItem: string, defenceItem: string, isTokusei: boolean) {
     let result = 4096;
     console.log(wall)
     if (wall === 'リフレクター') {     
@@ -25,7 +25,7 @@ export class DamageCalculationHelper_correctDamage {
     }
 
     if (attackAbility === 'ブレインフォース') {
-      if (damage === '2x' || damage === '4x') {
+      if (effective === 2.0 || effective === 4.0) {
         result = result * Math.round(5120 / 4096 * 10) / 10
       }
     }
@@ -37,7 +37,7 @@ export class DamageCalculationHelper_correctDamage {
     }
 
     if (attackAbility === 'いろめがね') {
-      if (damage === '1/2x' || damage === '1/4x') {
+      if (effective === 0.5 || effective === 0.25) {
         result = result * Math.round(8192 / 4096 * 10) / 10
       }
     } 
@@ -67,7 +67,7 @@ export class DamageCalculationHelper_correctDamage {
 
     if (defenceAbility === 'ハードロック' || defenceAbility === 'フィルター' || 
     defenceAbility === 'プリズムアーマー') {
-      if (damage === '2x' || damage === '4x') {
+      if (effective === 2.0 || effective === 4.0) {
         result = result * Math.round(3072 / 4096 * 10) / 10
       }
     }
@@ -83,7 +83,7 @@ export class DamageCalculationHelper_correctDamage {
 
     // たつじんのおび
     if (attackItem === 'たつじんのおび') {
-      if (damage === '2x' || damage === '4x') {
+      if (effective === 2.0 || effective === 4.0) {
         result = result * Math.round(4915 / 4096 * 10) / 10
       }
     }
@@ -97,7 +97,7 @@ export class DamageCalculationHelper_correctDamage {
 
     // 半減きのみ
     if (defenceItem === '半減きのみ') {
-      if (damage === '2x' || damage === '4x') {
+      if (effective === 2.0 || effective === 4.0) {
         result = result * Math.round(2048 / 4096 * 10) / 10
       }
     }

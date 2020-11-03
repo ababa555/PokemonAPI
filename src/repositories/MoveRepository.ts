@@ -19,7 +19,7 @@ export class MoveRepository implements IMoveRepository {
     const result: Move[] = []
 
     moves.forEach((x: any) => {
-      const move = new Move(x.id, x.name, x.typeId, x.power, x.power2,
+      const move = new Move(x.id, x.name, x.type, x.power1, x.power2,
         x.pp, x.accuracy, x.priority, x.damageType, x.isDirect, x.canProtect)
       result.push(move)
     });

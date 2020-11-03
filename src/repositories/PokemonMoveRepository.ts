@@ -24,11 +24,11 @@ export class PokemonMoveRepository implements IPokemonMoveRepository {
 
     pokemonMoves.forEach((x: any) => {
       const targetMove = ArrayHelper.ensure(moves.find((y: any) => x.moveName === y.name))
-      const move = new Move(targetMove.id, targetMove.name, targetMove.type, targetMove.power, targetMove.power2,
+      const move = new Move(targetMove.id, targetMove.name, targetMove.type, targetMove.power1, targetMove.power2,
         targetMove.pp, targetMove.accuracy, targetMove.priority, targetMove.damageType, targetMove.isDirect, targetMove.canProtect)
       const pokemonMove = new PokemonMove(x.pokemonId, x.moveName, move)
       result.push(pokemonMove)
-    });
+    });    
     return result
   }
 }

@@ -1,4 +1,5 @@
 import { Move as MoveType } from '../../types';
+import { DamageType } from '../../enumerators';
 
 export class Move {
   id: number;
@@ -23,7 +24,7 @@ export class Move {
       this.pp = pp;
       this.accuracy = accuracy;
       this.priority = priority;
-      this.damageType = damageType;
+      this.damageType = damageType === "変化" ? DamageType.STATUS : damageType === "物理" ?  DamageType.PHYSICAL : DamageType.SPECIAL;
       this.isDirect = isDirect;
       this.canProtect = canProtect;
   }

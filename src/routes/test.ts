@@ -17,7 +17,6 @@ router.get('/1', (req, res, next) => {
 })
 
 router.get('/2', (req: AbabaRequest, res, next) => {
-  console.log(req.query.name)
   res.send(`<h1>test /2</h1>`)
 })
 

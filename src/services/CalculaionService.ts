@@ -21,6 +21,7 @@ import { Pokemon, PokemonWithEverything, PokemonAbility, PokemonEvolutionChain, 
 
 // 計算式参考
 // https://pokemon-wiki.net/%E3%83%80%E3%83%A1%E3%83%BC%E3%82%B8%E8%A8%88%E7%AE%97%E5%BC%8F#modify_values
+@injectable()
 export class CalculaionService implements ICalculaionService {
   private service: IPokemonService;
   private repository: IPokemonRepository;
@@ -63,24 +64,24 @@ export class CalculaionService implements ICalculaionService {
     isCritical: boolean,
     attackItem: string, defenceItem: string,
     isZ: boolean, isZExclusive: boolean, wall: string, weather: string, field: string, statusAilment: string, sport: string, isTokusei: boolean) {
-    
+
     const attackPokemon = this.service.get(attackPokemonId, version, "1")
     const defencePokemon = this.service.get(defencePokemonId, version, "1")
 
     const attackMove = ArrayHelper.ensure(attackPokemon.pokemonMoves.find(x => x.moveName === attackMoveName))
     const move = attackMove.move
-
-    let overrideMoveType = DamageCalculationHelperOverride.moveType(move, attackAbility, defenceAbility, weather, isZ)
+    
+    const overrideMoveType = DamageCalculationHelperOverride.moveType(move, attackAbility, defenceAbility, weather, isZ)
     if (overrideMoveType != null) {
       move.typeId = overrideMoveType;
     }
     
-    let overrideMovePower = DamageCalculationHelperOverride.movePower(attackPokemon.pokemonName, move, defenceAbility, weather, isZ, isZExclusive)
+    const overrideMovePower = DamageCalculationHelperOverride.movePower(attackPokemon.pokemonName, move, defenceAbility, weather, isZ, isZExclusive)
     if (overrideMovePower != null) {
       move.power = overrideMovePower.toString();
     }
     
-    let overrideMoveName = DamageCalculationHelperOverride.moveName(attackPokemon.pokemonName, move, isZ, isZExclusive)
+    const overrideMoveName = DamageCalculationHelperOverride.moveName(attackPokemon.pokemonName, move, isZ, isZExclusive)
     if (overrideMoveName != null) {
       move.name = overrideMoveName;
     }
@@ -89,19 +90,18 @@ export class CalculaionService implements ICalculaionService {
     const attackMoveType = move.typeId
     const attackPokemonTypes = attackPokemon.pokemonTypes.map(x => x.typeId)
     const defencePokemonTypes = defencePokemon.pokemonTypes.map(x => x.typeId)
-    const effective = this.getEffective(attackMoveType, defencePokemonTypes);
+    let effective: number = this.getEffective(attackMoveType, defencePokemonTypes);
 
     // Note:invalidByType（元々のファイル名はdamageInvalid.js）でやっていた目覚めるパワーの判定をどっかでやる
     // Note:〇〇スキンとかを考慮する
-    let calcDamage: number | null;
     const isInvalidByAbility = DamageCalculationHelper.isInvalidByAbility(move, defencePokemonTypes, attackAbility, defenceAbility)
     if (isInvalidByAbility) {
-      calcDamage = null
+      effective = 0.0
     }
 
     const isInvalidByType = DamageCalculationHelper.isInvalidByType(move, defencePokemonTypes)
     if (isInvalidByType) {
-      calcDamage = null
+      effective = 0.0
     }
 
     if (move.power == '-') {
@@ -114,28 +114,64 @@ export class CalculaionService implements ICalculaionService {
       return {damageMin: fixedDamage.min, damageMax: fixedDamage.max}
     }
 
-    // const calcParam = new DamageCalculationRequest(attackPokemon, defencePokemon, move, attackPokemonTypes, defencePokemonTypes, attackPokemonId, defenceAbility, attackAbility, defenceAbility, attackMoveName, version, attackItem)
+    const calcParam = new DamageCalculationParameter(
+      attackPokemon, defencePokemon, move,
+      attackPokemonTypes, defencePokemonTypes,
+      attackAbility, defenceAbility, version,
+      attackItem, defenceItem, isZ, isZExclusive,
+      isCritical, wall, weather, field, statusAilment, sport, isTokusei,
+      attackIndividualValue, attackEffortValue, attackNature, attackRank,
+      attackSpIndividualValue, attackSpEffortValue, attackSpNature,
+      defenceIndividualValue, defenceEffortValue, defenceNature,
+      defenceRank, defenceSpIndividualValue, defenceSpEffortValue, defenceSpNature,
+      effective
+    )
 
     // 通常
-    //const result = calcImpl()
+    const result1 = this.calcImpl(calcParam)
     
     // 急所
-    //const result = calcImpl()
+    const result2 = this.calcImpl(calcParam)
 
     //const a = new DamageCalculationRequest()
   }
 
-  private calcImpl(attackPokemon: PokemonWithEverything, defencePokemon: PokemonWithEverything, move: Move,
-    attackPokemonTypes: MoveType[], defencePokemonTypes: MoveType[],
-    attackAbility: string, defenceAbility: string,
-    attackIndividualValue: number, attackEffortValue: number, attackNature: number, attackRank: number,
-    attackSpIndividualValue: number, attackSpEffortValue: number, attackSpNature: number,
-    defenceIndividualValue: number, defenceEffortValue: number, defenceNature: number, defenceRank: number,
-    defenceSpIndividualValue: number, defenceSpEffortValue: number, defenceSpNature: number,
-    effective: string,
-    isCritical: boolean,
-    attackItem: string, defenceItem: string,
-    isZ: boolean, isZExclusive: boolean, wall: string, weather: string, field: string, statusAilment: string, sport: string, isTokusei: boolean) {
+  private calcImpl(param: DamageCalculationParameter) {
+    const attackPokemon = param.attackPokemon
+    const defencePokemon = param.defencePokemon
+    const move = param.move
+    const attackPokemonTypes = param.attackPokemonTypes
+    const defencePokemonTypes = param.defencePokemonTypes
+    const attackAbility = param.attackAbility
+    const defenceAbility = param.defenceAbility
+    const version = param.version
+    const attackItem = param.attackItem
+    const defenceItem = param.defenceItem
+    const isZ = param.isZ
+    const isZExclusive = param.isZExclusive
+    const isCritical = param.isCritical
+    const wall = param.wall
+    const weather = param.weather
+    const field = param.field
+    const statusAilment = param.statusAilment
+    const sport = param.sport
+    const isTokusei = param.isTokusei
+    const attackIndividualValue = param.attackIndividualValue
+    const attackEffortValue = param.attackEffortValue
+    const attackNature = param.attackNature
+    const attackRank = param.attackRank
+    const attackSpIndividualValue = param.attackSpIndividualValue
+    const attackSpEffortValue = param.attackSpEffortValue
+    const attackSpNature = param.attackSpNature
+    const defenceIndividualValue = param.defenceIndividualValue
+    const defenceEffortValue = param.defenceEffortValue
+    const defenceNature = param.defenceNature
+    const defenceRank = param.defenceRank
+    const defenceSpIndividualValue = param.defenceSpIndividualValue
+    const defenceSpEffortValue = param.defenceSpEffortValue
+    const defenceSpNature = param.defenceSpNature
+    const effective = param.effective
+
     // ダメージ計算式
     // Note:https://pokemon-wiki.net/%E3%83%80%E3%83%A1%E3%83%BC%E3%82%B8%E8%A8%88%E7%AE%97%E5%BC%8F
     // A．攻撃側のレベル × 2 ÷ 5 ＋ 2 → 切り捨て
@@ -310,11 +346,11 @@ export class CalculaionService implements ICalculaionService {
     console.log('i2:' + h1)
 
     // タイプ相性 → 切り捨て
-    const damageN = DamageCalculationHelper.calcN(effective)
-    console.log('damageN(タイプ相性):' + damageN)
+    // const damageN = DamageCalculationHelper.calcN(effective)
+    console.log('effective(タイプ相性):' + effective)
 
-    const j1 = Math.floor(i1 * damageN)
-    const j2 = Math.floor(i2 * damageN)
+    const j1 = Math.floor(i1 * effective)
+    const j2 = Math.floor(i2 * effective)
     console.log('j1:' + j1)
     console.log('j2:' + j2)
 
@@ -334,7 +370,7 @@ export class CalculaionService implements ICalculaionService {
       wall, 
       attackAbility, 
       defenceAbility, 
-      effective,  // Note:元々damageだったところをeffective用に書き換える
+      effective,
       isCritical,
       attackItem, 
       defenceItem, 
@@ -346,7 +382,7 @@ export class CalculaionService implements ICalculaionService {
 
     let damageMin = 0;
     let damageMax = 0;
-    if (damageN != 0.0) {
+    if (effective != 0.0) {
       if (l1 < 1) {
         damageMin = 1
       } else {
@@ -359,6 +395,8 @@ export class CalculaionService implements ICalculaionService {
       }
     }
 
+    console.log('damageMin:' + damageMin)
+    console.log('damageMax:' + damageMax)
     return {damageMin: damageMin, damageMax: damageMax} 
   }
 
@@ -368,46 +406,41 @@ export class CalculaionService implements ICalculaionService {
   }
 }
 
-class DamageCalculationRequest {
+class DamageCalculationParameter {
   constructor(
-    public attackPokemon: PokemonWithEverything, 
-    public defencePokemon: PokemonWithEverything, 
+    public attackPokemon: PokemonWithEverything,
+    public defencePokemon: PokemonWithEverything,
     public move: Move,
-    public attackPokemonTypes: MoveType[], 
+    public attackPokemonTypes: MoveType[],
     public defencePokemonTypes: MoveType[],
-    public attackPokemonId: string, 
-    public defencePokemonId: string, 
-    public attackAbility: string, 
-    public defenceAbility: string, 
-    public attackMoveName: string, 
+    public attackAbility: string,
+    public defenceAbility: string,
     public version: GameVersion,
-    public attackItem: string, 
+    public attackItem: string,
     public defenceItem: string,
-    public damage: string, 
-    public isZ: boolean, 
-    public isZExclusive: boolean, 
-    public isCritical: boolean, 
-    public wall: string, 
-    public weather: string, 
-    public field: string, 
-    public statusAilment: string, 
-    public sport: string, 
+    public isZ: boolean,
+    public isZExclusive: boolean,
+    public isCritical: boolean,
+    public wall: string,
+    public weather: string,
+    public field: string,
+    public statusAilment: string,
+    public sport: string,
     public isTokusei: boolean,
-    public attackIndividualValue: number, 
-    public attackEffortValue: number, 
-    public attackNature: number, 
+    public attackIndividualValue: number,
+    public attackEffortValue: number,
+    public attackNature: number,
     public attackRank: number,
-    public attackSpIndividualValue: number, 
-    public attackSpEffortValue: number, 
-    public attackSpNature: number, 
-    public attackSpRank: number,
-    public defenceIndividualValue: number, 
-    public defenceEffortValue: number, 
-    public defenceNature: number, 
+    public attackSpIndividualValue: number,
+    public attackSpEffortValue: number,
+    public attackSpNature: number,
+    public defenceIndividualValue: number,
+    public defenceEffortValue: number,
+    public defenceNature: number,
     public defenceRank: number,
-    public defenceSpIndividualValue: number, 
-    public defenceSpEffortValue: number, 
-    public defenceSpNature: number, 
-    public defenceSpRank: number
+    public defenceSpIndividualValue: number,
+    public defenceSpEffortValue: number,
+    public defenceSpNature: number,
+    public effective: number
   ) {}
 }
