@@ -1,7 +1,7 @@
 import { Move, PokemonStats } from '../../models/data';
 import { DamageType } from '../../enumerators';
 
-export class DamageCalculationHelper_stats {
+export class DamageCalculationHelper_Stats {
   /**
    * 攻撃側のこうげき(とくこう)を取得します。
    * @returns 攻撃側のこうげき(とくこう)

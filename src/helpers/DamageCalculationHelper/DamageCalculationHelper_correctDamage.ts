@@ -2,7 +2,7 @@ import { Move } from '../../models/data';
 import { MoveType as MoveEnum,DamageType } from '../../enumerators';
 import { DamageCalculationHelper } from '.';
 
-export class DamageCalculationHelper_correctDamage {
+export class DamageCalculationHelper_CorrectDamage {
   // 【7】ダメージの補正値
   static correctDamage(move: Move, wall: string, attackAbility: string, defenceAbility: string, effective: number, isCritical: boolean, attackItem: string, defenceItem: string, isTokusei: boolean) {
     let result = 4096;

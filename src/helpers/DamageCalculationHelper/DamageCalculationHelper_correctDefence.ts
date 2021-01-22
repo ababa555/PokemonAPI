@@ -2,7 +2,7 @@ import { Move, PokemonName } from '../../models/data';
 import { DamageType } from '../../enumerators';
 import { DamageCalculationHelper } from '.';
 
-export class DamageCalculationHelper_correctDefence {
+export class DamageCalculationHelper_CorrectDefence {
   // 【5】防御の補正値
   static correctDefence(defencePokemonName: PokemonName, move: Move, attackAbility: string, defenceAbility: string, defenceItem: string, weather: string, statusAilment: string, field: string) {
     let result = 4096;

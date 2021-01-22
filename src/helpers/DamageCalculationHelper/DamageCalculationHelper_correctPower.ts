@@ -3,7 +3,7 @@ import { Move as MoveType } from '../../types';
 import { MoveType as MoveEnum, DamageType } from '../../enumerators';
 import { DamageCalculationHelper } from '.';
 
-export class DamageCalculationHelper_correctPower {
+export class DamageCalculationHelper_CorrectPower {
   /**
    * 【1】威力の補正値 を取得します。
    * @returns 初期値：4096 として、特性に応じて威力を補正した値を返します。

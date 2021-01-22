@@ -7,12 +7,12 @@ import { IPokemonService } from './IPokemonService';
 import { IPokemonAbilityRepository, IPokemonEvolutionChainRepository, IPokemonMoveRepository, IMoveRepository, IPokemonRepository, IPokemonNameRepository, IPokemonStatsRepository, IPokemonTypeRepository } from '../repositories'
 import { ArrayHelper, 
   DamageCalculationHelper, 
-  DamageCalculationHelper_correctPower as DamageCalculationHelperPower,
-  DamageCalculationHelper_correctAttack as DamageCalculationHelperAttack,
-  DamageCalculationHelper_correctDefence as DamageCalculationHelperDefence,
-  DamageCalculationHelper_correctDamage as DamageCalculationHelperDamage,
-  DamageCalculationHelper_override as DamageCalculationHelperOverride,
-  DamageCalculationHelper_stats as DamageCalculationHelperStats,
+  DamageCalculationHelper_CorrectPower as DamageCalculationHelperPower,
+  DamageCalculationHelper_CorrectAttack as DamageCalculationHelperAttack,
+  DamageCalculationHelper_CorrectDefence as DamageCalculationHelperDefence,
+  DamageCalculationHelper_CorrectDamage as DamageCalculationHelperDamage,
+  DamageCalculationHelper_Override as DamageCalculationHelperOverride,
+  DamageCalculationHelper_Stats as DamageCalculationHelperStats,
 } from '../helpers';
 import { Move as MoveType, GameVersion } from './../types';
 import { MoveType as MoveEnum } from './../enumerators';

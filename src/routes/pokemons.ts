@@ -16,8 +16,8 @@ router.get('/', async (req: GetPokemonRequest, res, next) => {
   pokemonControllerContainer.get(req, res);
 })
 
-// http://localhost:3000/pokemons/no?no=003&version=1&localLanguageId=1
-router.get('/no', async (req: GetPokemonByNoRequest, res, next) => {
+// http://localhost:3000/pokemons/byno?no=003&version=1&localLanguageId=1
+router.get('/byno', async (req: GetPokemonByNoRequest, res, next) => {
   pokemonControllerContainer.getByNo(req, res);
 })
 

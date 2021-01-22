@@ -2,7 +2,7 @@ import { Move, PokemonName } from '../../models/data';
 import { DamageType, MoveType as MoveEnum } from '../../enumerators';
 import { Move as MoveType } from '../../types';
 
-export class DamageCalculationHelper_override {
+export class DamageCalculationHelper_Override {
   /**
    * わざのタイプが上書きされるかを判定します。
    * @returns 上書きするタイプ or null：上書き無し

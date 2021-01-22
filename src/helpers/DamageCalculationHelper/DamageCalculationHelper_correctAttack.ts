@@ -1,13 +1,10 @@
 import { Move, PokemonName } from '../../models/data';
 import { MoveType as MoveEnum, DamageType } from '../../enumerators';
 
-export class DamageCalculationHelper_correctAttack {
+export class DamageCalculationHelper_CorrectAttack {
   // 【3】攻撃の補正値
   static correctAttack(attackPokemonName: PokemonName, move: Move, attackAbility: string, weather: string, statusAilment: string, attackItem: string, isTokusei: boolean): number {
     var result = 4096;
-
-    // let attackPoke = Enumerable.from(data)
-    // .where(x => x.Id == attackId).singleOrDefault()
 
     if (attackAbility === 'スロースタート') {
       // 戦闘に出ると5ターンの間攻撃・素早さの値が半分になる
